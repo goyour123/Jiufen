@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import sqlite3
 from datetime import datetime
 import re
+import os.path
+
 
 conn = sqlite3.connect('goldprice.sqlite')
 cur = conn.cursor()
@@ -10,8 +12,9 @@ cur = conn.cursor()
 # cur.execute('''
 # DROP TABLE IF EXISTS Gold''')
 #
-# cur.execute('''
-# CREATE TABLE Gold (Date TEXT UNIQUE, Price_Out INTEGER, Price_In INTEGER)''')
+
+if not os.path.isfile('goldprice.sqlite'):
+    cur.execute('''CREATE TABLE Gold (Date TEXT UNIQUE, Price_Out INTEGER, Price_In INTEGER)''')
 
 url = "http://rate.bot.com.tw/Pages/UIP005/UIP005INQ3.aspx?view=1&lang=zh-TW"
 
