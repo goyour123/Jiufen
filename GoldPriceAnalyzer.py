@@ -22,8 +22,13 @@ class MplCanvas(FigureCanvasQTAgg):
         FigureCanvasQTAgg.setSizePolicy(self, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvasQTAgg.updateGeometry(self)
 
-        self.x, self.price_in_list, self.price_out_list = ([], [], [])
+
+class GoldPriceCanvas(MplCanvas):
+    def __init__(self, *args, **kwargs):
+        MplCanvas.__init__(self, *args, **kwargs)
+        MplCanvas.setStatusTip(self, '銀行賣出價格')
         self.update_data()
+        self.update_figure(1, 12)
 
     def update_data(self):
         conn = sqlite3.connect('goldprice.sqlite')
@@ -42,9 +47,6 @@ class MplCanvas(FigureCanvasQTAgg):
         converted_dates = map(datetime.strptime, date_list, len(date_list) * ['%Y/%m/%d'])
         self.num_date_list = list(converted_dates)
 
-    def get_price_data(self):
-        return self.num_date_list, self.price_in_list, self.price_out_list
-
     def calculate_start_date_index(self, interval):
         start_date = self.num_date_list[-1] + relativedelta(months=-interval)
         while True:
@@ -52,26 +54,24 @@ class MplCanvas(FigureCanvasQTAgg):
                 return self.num_date_list.index(start_date)
             start_date -= relativedelta(days=1)
 
-
-class GoldPriceCanvas(MplCanvas):
-    def __init__(self, *args, **kwargs):
-        MplCanvas.__init__(self, *args, **kwargs)
-        MplCanvas.setStatusTip(self, '銀行賣出價格')
-        self.date, self.price_in_list, self.price_out_list = self.get_price_data()
-        self.update_figure(1, 12)
-
     def update_figure(self, canvas_price_out, interval):
         start_date_index = self.calculate_start_date_index(interval)
         self.axes.clear()
         if canvas_price_out:
-            self.axes.plot(self.date[start_date_index:], self.price_out_list[start_date_index:], 'r', color='#B99A1D')
+            self.axes.plot(self.num_date_list[start_date_index:], self.price_out_list[start_date_index:], 'r', color='#B99A1D')
             self.axes.patch.set_facecolor('#E3F0FD')
             self.fig.set_facecolor('#CBD7E6')
         else:
-            self.axes.plot(self.date[start_date_index:], self.price_in_list[start_date_index:], 'r', color='#FF53D5')
+            self.axes.plot(self.num_date_list[start_date_index:], self.price_in_list[start_date_index:], 'r', color='#FF53D5')
             self.axes.patch.set_facecolor('#FFECFF')
             self.fig.set_facecolor('#FFC8FF')
         self.draw()
+
+
+# class TechnicalAnalysisCanvas(MplCanvas):
+#     def __init__(self, *args, **kwargs):
+#         MplCanvas.__init__(self, *args, **kwargs)
+#         MplCanvas.setStatusTip(self, 'KD線')
 
 
 class AppWindow(QtGui.QMainWindow):
