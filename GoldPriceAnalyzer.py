@@ -7,11 +7,21 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
 
+def calculateMa(price_list, interval, start_index):
+    count = 0
+    ma_list = []
+    for index in range(start_index, len(price_list)):
+        for count_index in range(interval):
+            count += price_list[index - count_index]
+        ma_list.append(count/interval)
+        count = 0
+    return ma_list
+
+
 class MplCanvas(FigureCanvasQTAgg):
 
     def __init__(self, parent=None, width=7, height=4, dpi=110):
-
-        self.fig = Figure(figsize=(width, height), dpi=dpi, edgecolor='k', linewidth=1)
+        self.fig = Figure(figsize=(width, height), dpi=dpi, linewidth=1)
         self.axes = self.fig.add_subplot(111)
 
         # We want the axes cleared every time plot() is called
@@ -21,14 +31,8 @@ class MplCanvas(FigureCanvasQTAgg):
 
         FigureCanvasQTAgg.setSizePolicy(self, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvasQTAgg.updateGeometry(self)
-
-
-class GoldPriceCanvas(MplCanvas):
-    def __init__(self, *args, **kwargs):
-        MplCanvas.__init__(self, *args, **kwargs)
-        MplCanvas.setStatusTip(self, '銀行賣出價格')
+        self.num_date_list, self.price_in_list, self.price_out_list = ([], [], [])
         self.update_data()
-        self.update_figure(1, 12)
 
     def update_data(self):
         conn = sqlite3.connect('goldprice.sqlite')
@@ -37,7 +41,7 @@ class GoldPriceCanvas(MplCanvas):
         cur.execute('SELECT * FROM Gold ORDER BY Date ASC')
         all_fetch = cur.fetchall()
 
-        date_list, self.price_in_list, self.price_out_list = ([], [], [])
+        date_list = []
 
         for date, price_out, price_in in all_fetch:
             date_list.append(date)
@@ -54,6 +58,13 @@ class GoldPriceCanvas(MplCanvas):
                 return self.num_date_list.index(start_date)
             start_date -= relativedelta(days=1)
 
+
+class GoldPriceCanvas(MplCanvas):
+    def __init__(self, *args, **kwargs):
+        MplCanvas.__init__(self, *args, **kwargs)
+        MplCanvas.setStatusTip(self, '銀行賣出價格')
+        self.update_figure(1, 12)
+
     def update_figure(self, canvas_price_out, interval):
         start_date_index = self.calculate_start_date_index(interval)
         self.axes.clear()
@@ -68,10 +79,17 @@ class GoldPriceCanvas(MplCanvas):
         self.draw()
 
 
-# class TechnicalAnalysisCanvas(MplCanvas):
-#     def __init__(self, *args, **kwargs):
-#         MplCanvas.__init__(self, *args, **kwargs)
-#         MplCanvas.setStatusTip(self, 'KD線')
+class TechnicalAnalysisCanvas(MplCanvas):
+    def __init__(self, *args, **kwargs):
+        MplCanvas.__init__(self, *args, **kwargs)
+        MplCanvas.setStatusTip(self, '技術分析線圖')
+        self.update_figure(1, 12)
+
+    def update_figure(self, canvas_price_out, interval):
+        start_date_index = self.calculate_start_date_index(interval)
+        self.axes.clear()
+        if canvas_price_out:
+            pass
 
 
 class AppWindow(QtGui.QMainWindow):
@@ -87,7 +105,9 @@ class AppWindow(QtGui.QMainWindow):
         self.price_canvas = 1
         self.canvas_interval = 12
         self.gold_price_canvas = GoldPriceCanvas(self.main_widget)
+        self.technical_analyze_canvas = TechnicalAnalysisCanvas(self.main_widget)
         self.layout.addWidget(self.gold_price_canvas)
+        self.layout.addWidget(self.technical_analyze_canvas)
 
         priceInAction = QtGui.QAction('&銀行買入', self)
         priceInAction.setStatusTip("更改顯示的價格為銀行買入價格")
@@ -129,24 +149,29 @@ class AppWindow(QtGui.QMainWindow):
     def update_figure_interval3(self):
         self.canvas_interval = 3
         self.gold_price_canvas.update_figure(self.price_canvas, self.canvas_interval)
+        self.technical_analyze_canvas.update_figure(self.price_canvas, self.canvas_interval)
 
     def update_figure_interval6(self):
         self.canvas_interval = 6
         self.gold_price_canvas.update_figure(self.price_canvas, self.canvas_interval)
+        self.technical_analyze_canvas.update_figure(self.price_canvas, self.canvas_interval)
 
     def update_figure_interval12(self):
         self.canvas_interval = 12
         self.gold_price_canvas.update_figure(self.price_canvas, self.canvas_interval)
+        self.technical_analyze_canvas.update_figure(self.price_canvas, self.canvas_interval)
 
     def change_canvas_price_in(self):
         self.price_canvas = 0
         self.gold_price_canvas.setStatusTip('銀行買入價格')
         self.gold_price_canvas.update_figure(self.price_canvas, self.canvas_interval)
+        self.technical_analyze_canvas.update_figure(self.price_canvas, self.canvas_interval)
 
     def change_canvas_price_out(self):
         self.price_canvas = 1
         self.gold_price_canvas.setStatusTip('銀行賣出價格')
         self.gold_price_canvas.update_figure(self.price_canvas, self.canvas_interval)
+        self.technical_analyze_canvas.update_figure(self.price_canvas, self.canvas_interval)
 
 
 def main():

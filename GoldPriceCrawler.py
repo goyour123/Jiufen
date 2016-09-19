@@ -13,8 +13,7 @@ cur = conn.cursor()
 # DROP TABLE IF EXISTS Gold''')
 #
 
-if not os.path.isfile('goldprice.sqlite'):
-    cur.execute('''CREATE TABLE Gold (Date TEXT UNIQUE, Price_Out INTEGER, Price_In INTEGER)''')
+cur.execute('''CREATE TABLE IF NOT EXISTS Gold (Date TEXT UNIQUE, Price_Out INTEGER, Price_In INTEGER)''')
 
 url = "http://rate.bot.com.tw/Pages/UIP005/UIP005INQ3.aspx?view=1&lang=zh-TW"
 
@@ -33,9 +32,9 @@ res = requests.post(url, data=payload)
 
 soup = BeautifulSoup(res.text, 'html.parser')
 
-row = (soup.findAll('tr', {'class': re.compile('color[01]')}))
+row = soup.findAll('tr', {'class': re.compile('color[01]')})
 
-date, price = ([], [])
+date, price = [], []
 
 for item0 in row:
     price = item0.findAll('td', {'class': 'decimal'})
