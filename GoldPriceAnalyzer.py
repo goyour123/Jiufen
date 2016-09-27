@@ -7,15 +7,22 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
 
-def calculateMa(price_list, interval, start_index):
-    count = 0
-    ma_list = []
-    for index in range(start_index, len(price_list)):
-        for count_index in range(interval):
-            count += price_list[index - count_index]
-        ma_list.append(count/interval)
-        count = 0
-    return ma_list
+def calculateEma(price_list, period):
+    ema_list = []
+    for price in price_list:
+        try:
+            ema = ((price * 2) / (period+1)) + ((ema_list[-1] * (period-1)) / (period+1))
+            ema_list.append(ema)
+        except IndexError:
+            ema_list.append(price)
+    return ema_list
+
+
+def calulateDif(ema_list0, ema_list1):
+    dif_list = []
+    for ema0, ema1 in zip(ema_list0, ema_list1):
+        dif_list.append(ema0 - ema1)
+    return dif_list
 
 
 class MplCanvas(FigureCanvasQTAgg):
@@ -83,13 +90,34 @@ class TechnicalAnalysisCanvas(MplCanvas):
     def __init__(self, *args, **kwargs):
         MplCanvas.__init__(self, *args, **kwargs)
         MplCanvas.setStatusTip(self, '技術分析線圖')
+        self.po_diff_list, self.pi_diff_list = [], []
+        self.po_dem_list, self.pi_dem_list = [], []
+        self.technical_analysis_init()
         self.update_figure(1, 12)
 
-    def update_figure(self, canvas_price_out, interval):
-        start_date_index = self.calculate_start_date_index(interval)
+    def update_figure(self, canvas_price_out, month_interval):
+        start_date_index = self.calculate_start_date_index(month_interval)
         self.axes.clear()
         if canvas_price_out:
-            pass
+            #self.axes.plot(self.num_date_list[start_date_index:], self.po_diff_list[start_date_index:], 'r', color='#B99A1D')
+            self.axes.plot(self.num_date_list[start_date_index:], self.po_diff_list[start_date_index:], 'r',
+                           self.num_date_list[start_date_index:], self.po_dem_list[start_date_index:])
+        else:
+            #self.axes.plot(self.num_date_list[start_date_index:], self.pi_diff_list[start_date_index:], 'r', color='#FF53D5')
+            self.axes.plot(self.num_date_list[start_date_index:], self.pi_diff_list[start_date_index:], 'r',
+                           self.num_date_list[start_date_index:], self.pi_dem_list[start_date_index:])
+        self.draw()
+
+    def technical_analysis_init(self):
+        po_ema12_list = calculateEma(self.price_out_list, 12)
+        po_ema26_list = calculateEma(self.price_out_list, 26)
+        self.po_diff_list = calulateDif(po_ema12_list, po_ema26_list)
+        self.po_dem_list = calculateEma(self.po_diff_list, 9)
+
+        pi_ema12_list = calculateEma(self.price_in_list, 12)
+        pi_ema26_list = calculateEma(self.price_in_list, 26)
+        self.pi_diff_list = calulateDif(pi_ema12_list, pi_ema26_list)
+        self.pi_dem_list = calculateEma(self.pi_diff_list, 9)
 
 
 class AppWindow(QtGui.QMainWindow):
