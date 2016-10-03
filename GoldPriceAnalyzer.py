@@ -31,14 +31,13 @@ class MplCanvas(FigureCanvasQTAgg):
         self.fig = Figure(figsize=(width, height), dpi=dpi, linewidth=1)
         self.axes = self.fig.add_subplot(111)
 
-        # We want the axes cleared every time plot() is called
-        self.axes.hold(True)
         FigureCanvasQTAgg.__init__(self, self.fig)
         self.setParent(parent)
 
         FigureCanvasQTAgg.setSizePolicy(self, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvasQTAgg.updateGeometry(self)
-        self.num_date_list, self.price_in_list, self.price_out_list = ([], [], [])
+
+        self.date_list, self.num_date_list, self.price_in_list, self.price_out_list = [], [], [], []
         self.update_data()
 
     def update_data(self):
@@ -48,14 +47,12 @@ class MplCanvas(FigureCanvasQTAgg):
         cur.execute('SELECT * FROM Gold ORDER BY Date ASC')
         all_fetch = cur.fetchall()
 
-        date_list = []
-
         for date, price_out, price_in in all_fetch:
-            date_list.append(date)
+            self.date_list.append(date)
             self.price_out_list.append(price_out)
             self.price_in_list.append(price_in)
 
-        converted_dates = map(datetime.strptime, date_list, len(date_list) * ['%Y/%m/%d'])
+        converted_dates = map(datetime.strptime, self.date_list, len(self.date_list) * ['%Y/%m/%d'])
         self.num_date_list = list(converted_dates)
 
     def calculate_start_date_index(self, interval):
@@ -74,13 +71,17 @@ class GoldPriceCanvas(MplCanvas):
 
     def update_figure(self, canvas_price_out, interval):
         start_date_index = self.calculate_start_date_index(interval)
-        self.axes.clear()
+        self.axes.cla()
         if canvas_price_out:
-            self.axes.plot(self.num_date_list[start_date_index:], self.price_out_list[start_date_index:], 'r', color='#B99A1D')
+            self.axes.set_title('Selling Price')
+            self.axes.plot(self.num_date_list[start_date_index:], self.price_out_list[start_date_index:], 'r',
+                           color='#B99A1D', picker=1)
             self.axes.patch.set_facecolor('#E3F0FD')
             self.fig.set_facecolor('#CBD7E6')
         else:
-            self.axes.plot(self.num_date_list[start_date_index:], self.price_in_list[start_date_index:], 'r', color='#FF53D5')
+            self.axes.set_title('Buying Price')
+            self.axes.plot(self.num_date_list[start_date_index:], self.price_in_list[start_date_index:], 'r',
+                           color='#FF53D5', picker=1)
             self.axes.patch.set_facecolor('#FFECFF')
             self.fig.set_facecolor('#FFC8FF')
         self.draw()
@@ -92,20 +93,24 @@ class TechnicalAnalysisCanvas(MplCanvas):
         MplCanvas.setStatusTip(self, '技術分析線圖')
         self.po_diff_list, self.pi_diff_list = [], []
         self.po_dem_list, self.pi_dem_list = [], []
+        self.po_macd_list, self.pi_macd_list = [], []
         self.technical_analysis_init()
         self.update_figure(1, 12)
 
     def update_figure(self, canvas_price_out, month_interval):
         start_date_index = self.calculate_start_date_index(month_interval)
-        self.axes.clear()
+        self.axes.cla()
         if canvas_price_out:
-            #self.axes.plot(self.num_date_list[start_date_index:], self.po_diff_list[start_date_index:], 'r', color='#B99A1D')
-            self.axes.plot(self.num_date_list[start_date_index:], self.po_diff_list[start_date_index:], 'r',
-                           self.num_date_list[start_date_index:], self.po_dem_list[start_date_index:])
+            self.axes.plot(self.num_date_list[start_date_index:], self.po_diff_list[start_date_index:], 'r', label='dif')
+            self.axes.plot(self.num_date_list[start_date_index:], self.po_dem_list[start_date_index:], 'b', label='ema')
+            self.axes.bar(self.num_date_list[start_date_index:], self.po_macd_list[start_date_index:],
+                          color='g', edgecolor='g')
         else:
-            #self.axes.plot(self.num_date_list[start_date_index:], self.pi_diff_list[start_date_index:], 'r', color='#FF53D5')
-            self.axes.plot(self.num_date_list[start_date_index:], self.pi_diff_list[start_date_index:], 'r',
-                           self.num_date_list[start_date_index:], self.pi_dem_list[start_date_index:])
+            self.axes.plot(self.num_date_list[start_date_index:], self.pi_diff_list[start_date_index:], 'r', label='dif')
+            self.axes.plot(self.num_date_list[start_date_index:], self.pi_dem_list[start_date_index:], 'b', label='ema')
+            self.axes.bar(self.num_date_list[start_date_index:], self.pi_macd_list[start_date_index:],
+                          color='g', edgecolor='g')
+        self.axes.legend(bbox_to_anchor=(1.1, 1.05))
         self.draw()
 
     def technical_analysis_init(self):
@@ -118,6 +123,9 @@ class TechnicalAnalysisCanvas(MplCanvas):
         pi_ema26_list = calculateEma(self.price_in_list, 26)
         self.pi_diff_list = calulateDif(pi_ema12_list, pi_ema26_list)
         self.pi_dem_list = calculateEma(self.pi_diff_list, 9)
+
+        self.po_macd_list = calulateDif(self.po_diff_list, self.po_dem_list)
+        self.pi_macd_list = calulateDif(self.pi_diff_list, self.pi_dem_list)
 
 
 class AppWindow(QtGui.QMainWindow):
