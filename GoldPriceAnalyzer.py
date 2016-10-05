@@ -5,24 +5,7 @@ from dateutil.relativedelta import relativedelta
 from PyQt4 import QtGui
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
-
-
-def calculateEma(price_list, period):
-    ema_list = []
-    for price in price_list:
-        try:
-            ema = ((price * 2) / (period+1)) + ((ema_list[-1] * (period-1)) / (period+1))
-            ema_list.append(ema)
-        except IndexError:
-            ema_list.append(price)
-    return ema_list
-
-
-def calulateDif(ema_list0, ema_list1):
-    dif_list = []
-    for ema0, ema1 in zip(ema_list0, ema_list1):
-        dif_list.append(ema0 - ema1)
-    return dif_list
+import GpAnalyzer
 
 
 class MplCanvas(FigureCanvasQTAgg):
@@ -114,18 +97,18 @@ class TechnicalAnalysisCanvas(MplCanvas):
         self.draw()
 
     def technical_analysis_init(self):
-        po_ema12_list = calculateEma(self.price_out_list, 12)
-        po_ema26_list = calculateEma(self.price_out_list, 26)
-        self.po_diff_list = calulateDif(po_ema12_list, po_ema26_list)
-        self.po_dem_list = calculateEma(self.po_diff_list, 9)
+        po_ema12_list = GpAnalyzer.calculate_ema(self.price_out_list, 12)
+        po_ema26_list = GpAnalyzer.calculate_ema(self.price_out_list, 26)
+        self.po_diff_list = GpAnalyzer.calculate_dif(po_ema12_list, po_ema26_list)
+        self.po_dem_list = GpAnalyzer.calculate_ema(self.po_diff_list, 9)
 
-        pi_ema12_list = calculateEma(self.price_in_list, 12)
-        pi_ema26_list = calculateEma(self.price_in_list, 26)
-        self.pi_diff_list = calulateDif(pi_ema12_list, pi_ema26_list)
-        self.pi_dem_list = calculateEma(self.pi_diff_list, 9)
+        pi_ema12_list = GpAnalyzer.calculate_ema(self.price_in_list, 12)
+        pi_ema26_list = GpAnalyzer.calculate_ema(self.price_in_list, 26)
+        self.pi_diff_list = GpAnalyzer.calculate_dif(pi_ema12_list, pi_ema26_list)
+        self.pi_dem_list = GpAnalyzer.calculate_ema(self.pi_diff_list, 9)
 
-        self.po_macd_list = calulateDif(self.po_diff_list, self.po_dem_list)
-        self.pi_macd_list = calulateDif(self.pi_diff_list, self.pi_dem_list)
+        self.po_macd_list = GpAnalyzer.calculate_dif(self.po_diff_list, self.po_dem_list)
+        self.pi_macd_list = GpAnalyzer.calculate_dif(self.pi_diff_list, self.pi_dem_list)
 
 
 class AppWindow(QtGui.QMainWindow):

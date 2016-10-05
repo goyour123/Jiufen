@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 import sqlite3
 from datetime import datetime
 import re
-import os.path
 
 
 conn = sqlite3.connect('goldprice.sqlite')
@@ -29,11 +28,8 @@ payload = {
     'Button1': '查詢'
 }
 res = requests.post(url, data=payload)
-
 soup = BeautifulSoup(res.text, 'html.parser')
-
 row = soup.findAll('tr', {'class': re.compile('color[01]')})
-
 date, price = [], []
 
 for item0 in row:
