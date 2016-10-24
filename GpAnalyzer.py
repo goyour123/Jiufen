@@ -58,3 +58,12 @@ def calculate_dif(ema_list0, ema_list1):
     for ema0, ema1 in zip(ema_list0, ema_list1):
         dif_list.append(ema0 - ema1)
     return dif_list
+
+
+def get_first_date_index_in_month(date_list):
+    first_date_index_list, month_now = [], date_list[0].month
+    for date in date_list:
+        if date.month != month_now:
+            first_date_index_list.append(date_list.index(date))
+            month_now = date.month
+    return first_date_index_list

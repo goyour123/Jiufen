@@ -5,6 +5,8 @@ from dateutil.relativedelta import relativedelta
 from PyQt4 import QtGui
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
+from matplotlib.dates import IndexDateFormatter, date2num
+from matplotlib.ticker import FixedLocator
 import GpAnalyzer
 
 
@@ -55,18 +57,23 @@ class GoldPriceCanvas(MplCanvas):
     def update_figure(self, canvas_price_out, interval):
         start_date_index = self.calculate_start_date_index(interval)
         self.axes.cla()
+        x_unit = range(0, len(self.num_date_list[start_date_index:]))
+
         if canvas_price_out:
             self.axes.set_title('Selling Price')
-            self.axes.plot(self.num_date_list[start_date_index:], self.price_out_list[start_date_index:], 'r',
-                           color='#B99A1D', picker=1)
+            self.axes.plot(x_unit, self.price_out_list[start_date_index:], 'r', color='#B99A1D')
             self.axes.patch.set_facecolor('#E3F0FD')
             self.fig.set_facecolor('#CBD7E6')
         else:
             self.axes.set_title('Buying Price')
-            self.axes.plot(self.num_date_list[start_date_index:], self.price_in_list[start_date_index:], 'r',
-                           color='#FF53D5', picker=1)
+            self.axes.plot(x_unit, self.price_in_list[start_date_index:], 'r', color='#FF53D5')
             self.axes.patch.set_facecolor('#FFECFF')
             self.fig.set_facecolor('#FFC8FF')
+
+        index_list = GpAnalyzer.get_first_date_index_in_month(self.num_date_list[start_date_index:])
+        self.axes.xaxis.set_major_locator(FixedLocator(index_list))
+        self.axes.xaxis.set_major_formatter(IndexDateFormatter(date2num(self.num_date_list[start_date_index:]), '%Y/%m'))
+
         self.draw()
 
 
@@ -83,16 +90,20 @@ class TechnicalAnalysisCanvas(MplCanvas):
     def update_figure(self, canvas_price_out, month_interval):
         start_date_index = self.calculate_start_date_index(month_interval)
         self.axes.cla()
+        x_unit = range(0, len(self.num_date_list[start_date_index:]))
+
         if canvas_price_out:
-            self.axes.plot(self.num_date_list[start_date_index:], self.po_diff_list[start_date_index:], 'r', label='dif')
-            self.axes.plot(self.num_date_list[start_date_index:], self.po_dem_list[start_date_index:], 'b', label='ema')
-            self.axes.bar(self.num_date_list[start_date_index:], self.po_macd_list[start_date_index:],
-                          color='g', edgecolor='g')
+            self.axes.plot(x_unit, self.po_diff_list[start_date_index:], 'r', label='dif')
+            self.axes.plot(x_unit, self.po_dem_list[start_date_index:], 'b', label='ema')
+            self.axes.bar(x_unit, self.po_macd_list[start_date_index:], color='g', edgecolor='g')
         else:
-            self.axes.plot(self.num_date_list[start_date_index:], self.pi_diff_list[start_date_index:], 'r', label='dif')
-            self.axes.plot(self.num_date_list[start_date_index:], self.pi_dem_list[start_date_index:], 'b', label='ema')
-            self.axes.bar(self.num_date_list[start_date_index:], self.pi_macd_list[start_date_index:],
-                          color='g', edgecolor='g')
+            self.axes.plot(x_unit, self.pi_diff_list[start_date_index:], 'r', label='dif')
+            self.axes.plot(x_unit, self.pi_dem_list[start_date_index:], 'b', label='ema')
+            self.axes.bar(x_unit, self.pi_macd_list[start_date_index:], color='g', edgecolor='g')
+
+        index_list = GpAnalyzer.get_first_date_index_in_month(self.num_date_list[start_date_index:])
+        self.axes.xaxis.set_major_locator(FixedLocator(index_list))
+        self.axes.xaxis.set_major_formatter(IndexDateFormatter(date2num(self.num_date_list[start_date_index:]),'%Y/%m'))
         self.axes.legend(bbox_to_anchor=(1.1, 1.05))
         self.draw()
 
