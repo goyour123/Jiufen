@@ -72,8 +72,7 @@ class GoldPriceCanvas(MplCanvas):
 
         index_list = GpAnalyzer.get_first_date_index_in_month(self.num_date_list[start_date_index:])
         self.axes.xaxis.set_major_locator(FixedLocator(index_list))
-        self.axes.xaxis.set_major_formatter(IndexDateFormatter(date2num(self.num_date_list[start_date_index:]), '%Y/%m'))
-
+        self.axes.xaxis.set_major_formatter(IndexDateFormatter(date2num(self.num_date_list[start_date_index:]), '%b'))
         self.draw()
 
 
@@ -107,7 +106,7 @@ class TechnicalAnalysisCanvas(MplCanvas):
 
         index_list = GpAnalyzer.get_first_date_index_in_month(self.num_date_list[start_date_index:])
         self.axes.xaxis.set_major_locator(FixedLocator(index_list))
-        self.axes.xaxis.set_major_formatter(IndexDateFormatter(date2num(self.num_date_list[start_date_index:]),'%Y/%m'))
+        self.axes.xaxis.set_major_formatter(IndexDateFormatter(date2num(self.num_date_list[start_date_index:]), '%m'))
         self.axes.legend(bbox_to_anchor=(1.1, 1.05))
         self.draw()
 
