@@ -95,11 +95,15 @@ class TechnicalAnalysisCanvas(MplCanvas):
         if canvas_price_out:
             self.axes.plot(x_unit, self.po_diff_list[start_date_index:], 'r', label='dif')
             self.axes.plot(x_unit, self.po_dem_list[start_date_index:], 'b', label='ema')
-            self.axes.bar(x_unit, self.po_macd_list[start_date_index:], color='g', edgecolor='g')
+            positive_macd, negative_macd = GpAnalyzer.separate_macd_list(self.po_macd_list[start_date_index:])
+            self.axes.bar(x_unit, positive_macd, color='r', linewidth=0)
+            self.axes.bar(x_unit, negative_macd, color='g', linewidth=0)
         else:
             self.axes.plot(x_unit, self.pi_diff_list[start_date_index:], 'r', label='dif')
             self.axes.plot(x_unit, self.pi_dem_list[start_date_index:], 'b', label='ema')
-            self.axes.bar(x_unit, self.pi_macd_list[start_date_index:], color='g', edgecolor='g')
+            positive_macd, negative_macd = GpAnalyzer.separate_macd_list(self.pi_macd_list[start_date_index:])
+            self.axes.bar(x_unit, positive_macd, color='r', linewidth=0)
+            self.axes.bar(x_unit, negative_macd, color='g', linewidth=0)
 
         index_list = GpAnalyzer.get_first_date_index_in_month(self.num_date_list[start_date_index:])
         self.axes.xaxis.set_major_locator(FixedLocator(index_list))

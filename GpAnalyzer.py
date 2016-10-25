@@ -67,3 +67,19 @@ def get_first_date_index_in_month(date_list):
             first_date_index_list.append(date_list.index(date))
             month_now = date.month
     return first_date_index_list
+
+
+def separate_macd_list(macd_list):
+    positive_macd_list, negative_macd_list = [], []
+    for macd in macd_list:
+        if macd > 0:
+            positive_macd_list.append(macd)
+            negative_macd_list.append(0)
+        elif macd < 0:
+            positive_macd_list.append(0)
+            negative_macd_list.append(macd)
+        else:
+            positive_macd_list.append(0)
+            negative_macd_list.append(0)
+
+    return positive_macd_list, negative_macd_list
