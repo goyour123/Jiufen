@@ -52,6 +52,7 @@ class GoldPriceCanvas(MplCanvas):
     def __init__(self, *args, **kwargs):
         MplCanvas.__init__(self, *args, **kwargs)
         MplCanvas.setStatusTip(self, '銀行賣出價格')
+        self.fig.canvas.mpl_connect('motion_notify_event', self.position)
         self.update_figure(1, 12)
 
     def update_figure(self, canvas_price_out, interval):
@@ -71,9 +72,15 @@ class GoldPriceCanvas(MplCanvas):
             self.fig.set_facecolor('#FFC8FF')
 
         index_list = GpAnalyzer.get_first_date_index_in_month(self.num_date_list[start_date_index:])
+        self.axes.axis([0, len(self.num_date_list[start_date_index:])-1, None, None])
         self.axes.xaxis.set_major_locator(FixedLocator(index_list))
         self.axes.xaxis.set_major_formatter(IndexDateFormatter(date2num(self.num_date_list[start_date_index:]), '%b'))
         self.draw()
+
+    def position(self, event):
+        if event.inaxes:
+            x_data, y_data = round(event.xdata), round(event.ydata)
+            print(x_data, y_data)
 
 
 class TechnicalAnalysisCanvas(MplCanvas):
@@ -105,9 +112,10 @@ class TechnicalAnalysisCanvas(MplCanvas):
             self.axes.bar(x_unit, negative_macd, color='g', linewidth=0)
 
         index_list = GpAnalyzer.get_first_date_index_in_month(self.num_date_list[start_date_index:])
+        self.axes.axis([0, len(self.num_date_list[start_date_index:]) - 1, None, None])
         self.axes.xaxis.set_major_locator(FixedLocator(index_list))
         self.axes.xaxis.set_major_formatter(IndexDateFormatter(date2num(self.num_date_list[start_date_index:]), '%m'))
-        self.axes.legend(bbox_to_anchor=(1.1, 1.05))
+        self.axes.legend(fontsize=12)
         self.draw()
 
     def technical_analysis_init(self):
