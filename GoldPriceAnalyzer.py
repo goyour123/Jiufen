@@ -52,6 +52,7 @@ class GoldPriceCanvas(MplCanvas):
     def __init__(self, *args, **kwargs):
         MplCanvas.__init__(self, *args, **kwargs)
         MplCanvas.setStatusTip(self, '銀行賣出價格')
+        self.canvas_price_list = []
         self.fig.canvas.mpl_connect('motion_notify_event', self.position)
         self.update_figure(1, 12)
 
@@ -61,13 +62,15 @@ class GoldPriceCanvas(MplCanvas):
         x_unit = range(0, len(self.num_date_list[start_date_index:]))
 
         if canvas_price_out:
+            self.canvas_price_list = self.price_out_list[start_date_index:]
             self.axes.set_title('Selling Price')
-            self.axes.plot(x_unit, self.price_out_list[start_date_index:], 'r', color='#B99A1D')
+            self.axes.plot(x_unit, self.canvas_price_list, 'r', color='#B99A1D')
             self.axes.patch.set_facecolor('#E3F0FD')
             self.fig.set_facecolor('#CBD7E6')
         else:
+            self.canvas_price_list = self.price_in_list[start_date_index:]
             self.axes.set_title('Buying Price')
-            self.axes.plot(x_unit, self.price_in_list[start_date_index:], 'r', color='#FF53D5')
+            self.axes.plot(x_unit, self.canvas_price_list, 'r', color='#FF53D5')
             self.axes.patch.set_facecolor('#FFECFF')
             self.fig.set_facecolor('#FFC8FF')
 
@@ -79,7 +82,8 @@ class GoldPriceCanvas(MplCanvas):
 
     def position(self, event):
         if event.inaxes:
-            x_data, y_data = round(event.xdata), round(event.ydata)
+            x_data = int(round(event.xdata))
+            y_data = self.canvas_price_list[x_data]
             print(x_data, y_data)
 
 
