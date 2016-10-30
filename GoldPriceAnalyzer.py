@@ -58,8 +58,8 @@ class GoldPriceCanvas(MplCanvas):
 
     def update_figure(self, canvas_price_out, interval):
         start_date_index = self.calculate_start_date_index(interval)
-        self.axes.cla()
         x_unit = range(0, len(self.num_date_list[start_date_index:]))
+        self.axes.cla()
 
         if canvas_price_out:
             self.canvas_price_list = self.price_out_list[start_date_index:]
@@ -82,9 +82,21 @@ class GoldPriceCanvas(MplCanvas):
 
     def position(self, event):
         if event.inaxes:
+            if len(self.axes.lines) > 1:
+                del self.axes.lines[-1]
+                del self.axes.lines[-1]
             x_data = int(round(event.xdata))
             y_data = self.canvas_price_list[x_data]
-            print(x_data, y_data)
+            x_min, x_max = self.axes.get_xlim()
+            y_min, y_max = self.axes.get_ylim()
+            self.cross_horizon = self.axes.plot([x_min, x_max], [y_data, y_data], 'b')
+            self.cross_vertical = self.axes.plot([x_data, x_data], [y_min, y_max], 'b')
+            self.draw()
+        else:
+            if len(self.axes.lines) > 1:
+                del self.axes.lines[-1]
+                del self.axes.lines[-1]
+                self.draw()
 
 
 class TechnicalAnalysisCanvas(MplCanvas):
