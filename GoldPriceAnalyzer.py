@@ -23,6 +23,7 @@ class MplCanvas(FigureCanvasQTAgg):
         FigureCanvasQTAgg.updateGeometry(self)
 
         self.date_list, self.num_date_list, self.price_in_list, self.price_out_list = [], [], [], []
+        self.canvas_x_list = []
         self.update_data()
 
     def update_data(self):
@@ -47,12 +48,24 @@ class MplCanvas(FigureCanvasQTAgg):
                 return self.num_date_list.index(start_date)
             start_date -= relativedelta(days=1)
 
+    def display_position(self, event):
+        if event.inaxes:
+            if len(self.axes.lines) > 2:
+                del self.axes.lines[-1]
+                del self.axes.lines[-1]
+            x_data = int(round(event.xdata))
+            y_data = self.canvas_x_list[x_data]
+            x_min, x_max = self.axes.get_xlim()
+            y_min, y_max = self.axes.get_ylim()
+            self.axes.plot([x_min, x_max], [y_data, y_data], 'b', linewidth=0.5)
+            self.axes.plot([x_data, x_data], [y_min, y_max], 'b', linewidth=0.5)
+            self.draw()
+
 
 class GoldPriceCanvas(MplCanvas):
     def __init__(self, *args, **kwargs):
         MplCanvas.__init__(self, *args, **kwargs)
         MplCanvas.setStatusTip(self, '銀行賣出價格')
-        self.canvas_price_list = []
         self.fig.canvas.mpl_connect('motion_notify_event', self.display_position)
         self.update_figure(1, 12)
 
@@ -62,15 +75,15 @@ class GoldPriceCanvas(MplCanvas):
         self.axes.cla()
 
         if canvas_price_out:
-            self.canvas_price_list = self.price_out_list[start_date_index:]
+            self.canvas_x_list = self.price_out_list[start_date_index:]
             self.axes.set_title('Selling Price')
-            self.axes.plot(x_unit, self.canvas_price_list, 'r', color='#B99A1D')
+            self.axes.plot(x_unit, self.canvas_x_list, 'r', color='#B99A1D')
             self.axes.patch.set_facecolor('#E3F0FD')
             self.fig.set_facecolor('#CBD7E6')
         else:
-            self.canvas_price_list = self.price_in_list[start_date_index:]
+            self.canvas_x_list = self.price_in_list[start_date_index:]
             self.axes.set_title('Buying Price')
-            self.axes.plot(x_unit, self.canvas_price_list, 'r', color='#FF53D5')
+            self.axes.plot(x_unit, self.canvas_x_list, 'r', color='#FF53D5')
             self.axes.patch.set_facecolor('#FFECFF')
             self.fig.set_facecolor('#FFC8FF')
 
@@ -80,24 +93,6 @@ class GoldPriceCanvas(MplCanvas):
         self.axes.xaxis.set_major_formatter(IndexDateFormatter(date2num(self.num_date_list[start_date_index:]), '%b'))
         self.draw()
 
-    def display_position(self, event):
-        if event.inaxes:
-            if len(self.axes.lines) > 1:
-                del self.axes.lines[-1]
-                del self.axes.lines[-1]
-            x_data = int(round(event.xdata))
-            y_data = self.canvas_price_list[x_data]
-            x_min, x_max = self.axes.get_xlim()
-            y_min, y_max = self.axes.get_ylim()
-            self.axes.plot([x_min, x_max], [y_data, y_data], 'b', linewidth=0.5)
-            self.axes.plot([x_data, x_data], [y_min, y_max], 'b', linewidth=0.5)
-            self.draw()
-        else:
-            if len(self.axes.lines) > 1:
-                del self.axes.lines[-1]
-                del self.axes.lines[-1]
-                self.draw()
-
 
 class TechnicalAnalysisCanvas(MplCanvas):
     def __init__(self, *args, **kwargs):
@@ -106,6 +101,7 @@ class TechnicalAnalysisCanvas(MplCanvas):
         self.po_diff_list, self.pi_diff_list = [], []
         self.po_dem_list, self.pi_dem_list = [], []
         self.po_macd_list, self.pi_macd_list = [], []
+        self.fig.canvas.mpl_connect('motion_notify_event', self.display_position)
         self.technical_analysis_init()
         self.update_figure(1, 12)
 
@@ -115,15 +111,17 @@ class TechnicalAnalysisCanvas(MplCanvas):
         x_unit = range(0, len(self.num_date_list[start_date_index:]))
 
         if canvas_price_out:
+            self.canvas_x_list = self.po_macd_list[start_date_index:]
             self.axes.plot(x_unit, self.po_diff_list[start_date_index:], 'r', label='dif')
             self.axes.plot(x_unit, self.po_dem_list[start_date_index:], 'b', label='ema')
-            positive_macd, negative_macd = GpAnalyzer.separate_macd_list(self.po_macd_list[start_date_index:])
+            positive_macd, negative_macd = GpAnalyzer.separate_macd_list(self.canvas_x_list)
             self.axes.bar(x_unit, positive_macd, color='r', linewidth=0)
             self.axes.bar(x_unit, negative_macd, color='g', linewidth=0)
         else:
+            self.canvas_x_list = self.pi_macd_list[start_date_index:]
             self.axes.plot(x_unit, self.pi_diff_list[start_date_index:], 'r', label='dif')
             self.axes.plot(x_unit, self.pi_dem_list[start_date_index:], 'b', label='ema')
-            positive_macd, negative_macd = GpAnalyzer.separate_macd_list(self.pi_macd_list[start_date_index:])
+            positive_macd, negative_macd = GpAnalyzer.separate_macd_list(self.canvas_x_list)
             self.axes.bar(x_unit, positive_macd, color='r', linewidth=0)
             self.axes.bar(x_unit, negative_macd, color='g', linewidth=0)
 
