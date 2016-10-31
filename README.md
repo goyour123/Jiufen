@@ -1,3 +1,3 @@
 # GPCrawler
 
-This project is for Anaconda
+This project is for Anaconda3-4.11

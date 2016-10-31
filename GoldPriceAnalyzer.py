@@ -53,7 +53,7 @@ class GoldPriceCanvas(MplCanvas):
         MplCanvas.__init__(self, *args, **kwargs)
         MplCanvas.setStatusTip(self, '銀行賣出價格')
         self.canvas_price_list = []
-        self.fig.canvas.mpl_connect('motion_notify_event', self.position)
+        self.fig.canvas.mpl_connect('motion_notify_event', self.display_position)
         self.update_figure(1, 12)
 
     def update_figure(self, canvas_price_out, interval):
@@ -80,7 +80,7 @@ class GoldPriceCanvas(MplCanvas):
         self.axes.xaxis.set_major_formatter(IndexDateFormatter(date2num(self.num_date_list[start_date_index:]), '%b'))
         self.draw()
 
-    def position(self, event):
+    def display_position(self, event):
         if event.inaxes:
             if len(self.axes.lines) > 1:
                 del self.axes.lines[-1]
@@ -89,8 +89,8 @@ class GoldPriceCanvas(MplCanvas):
             y_data = self.canvas_price_list[x_data]
             x_min, x_max = self.axes.get_xlim()
             y_min, y_max = self.axes.get_ylim()
-            self.cross_horizon = self.axes.plot([x_min, x_max], [y_data, y_data], 'b')
-            self.cross_vertical = self.axes.plot([x_data, x_data], [y_min, y_max], 'b')
+            self.axes.plot([x_min, x_max], [y_data, y_data], 'b', linewidth=0.5)
+            self.axes.plot([x_data, x_data], [y_min, y_max], 'b', linewidth=0.5)
             self.draw()
         else:
             if len(self.axes.lines) > 1:
