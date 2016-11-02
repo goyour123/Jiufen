@@ -53,12 +53,16 @@ class MplCanvas(FigureCanvasQTAgg):
             if len(self.axes.lines) > 2:
                 del self.axes.lines[-1]
                 del self.axes.lines[-1]
+            if len(self.axes.texts) >= 1:
+                del self.axes.texts[-1]
             x_data = int(round(event.xdata))
             y_data = self.canvas_x_list[x_data]
             x_min, x_max = self.axes.get_xlim()
             y_min, y_max = self.axes.get_ylim()
             self.axes.plot([x_min, x_max], [y_data, y_data], 'b', linewidth=0.5)
             self.axes.plot([x_data, x_data], [y_min, y_max], 'b', linewidth=0.5)
+            text = str(round(y_data, 2))
+            self.axes.text(event.xdata, y_data, text, bbox={'facecolor': 'red', 'alpha': 0.5})
             self.draw()
 
 
