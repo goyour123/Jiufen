@@ -83,3 +83,10 @@ def separate_macd_list(macd_list):
             negative_macd_list.append(0)
 
     return positive_macd_list, negative_macd_list
+
+
+def datetime_to_str(date_list):
+    str_list = []
+    for date in date_list:
+        str_list.append(date.strftime('%Y/%m/%d'))
+    return str_list

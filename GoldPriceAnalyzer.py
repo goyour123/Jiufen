@@ -23,7 +23,7 @@ class MplCanvas(FigureCanvasQTAgg):
         FigureCanvasQTAgg.updateGeometry(self)
 
         self.date_list, self.num_date_list, self.price_in_list, self.price_out_list = [], [], [], []
-        self.canvas_x_list = []
+        self.canvas_x_list, self.canvas_x_str_list, self.canvas_y_list = [], [], []
         self.update_data()
 
     def update_data(self):
@@ -56,13 +56,13 @@ class MplCanvas(FigureCanvasQTAgg):
             if len(self.axes.texts) >= 1:
                 del self.axes.texts[-1]
             x_data = int(round(event.xdata))
-            y_data = self.canvas_x_list[x_data]
+            y_data = self.canvas_y_list[x_data]
             x_min, x_max = self.axes.get_xlim()
             y_min, y_max = self.axes.get_ylim()
-            self.axes.plot([x_min, x_max], [y_data, y_data], 'b', linewidth=0.5)
-            self.axes.plot([x_data, x_data], [y_min, y_max], 'b', linewidth=0.5)
-            text = str(round(y_data, 2))
-            self.axes.text(event.xdata, y_data, text, bbox={'facecolor': 'red', 'alpha': 0.5})
+            self.axes.plot([x_min, x_max], [y_data, y_data], 'k', linewidth=0.5)
+            self.axes.plot([x_data, x_data], [y_min, y_max], 'k', linewidth=0.5)
+            text = str(self.canvas_x_str_list[x_data]) + '\n' + str(round(y_data, 2))
+            self.axes.text(event.xdata, y_data, text, bbox={'facecolor': '#d2cbcb', 'alpha': 0.5})
             self.draw()
 
 
@@ -79,18 +79,20 @@ class GoldPriceCanvas(MplCanvas):
         self.axes.cla()
 
         if canvas_price_out:
-            self.canvas_x_list = self.price_out_list[start_date_index:]
+            self.canvas_y_list = self.price_out_list[start_date_index:]
             self.axes.set_title('Selling Price')
-            self.axes.plot(x_unit, self.canvas_x_list, 'r', color='#B99A1D')
+            self.axes.plot(x_unit, self.canvas_y_list, 'r', color='#B99A1D')
             self.axes.patch.set_facecolor('#E3F0FD')
             self.fig.set_facecolor('#CBD7E6')
         else:
-            self.canvas_x_list = self.price_in_list[start_date_index:]
+            self.canvas_y_list = self.price_in_list[start_date_index:]
             self.axes.set_title('Buying Price')
-            self.axes.plot(x_unit, self.canvas_x_list, 'r', color='#FF53D5')
+            self.axes.plot(x_unit, self.canvas_y_list, 'r', color='#FF53D5')
             self.axes.patch.set_facecolor('#FFECFF')
             self.fig.set_facecolor('#FFC8FF')
 
+        self.canvas_x_list = self.num_date_list[start_date_index:]
+        self.canvas_x_str_list = GpAnalyzer.datetime_to_str(self.canvas_x_list)
         index_list = GpAnalyzer.get_first_date_index_in_month(self.num_date_list[start_date_index:])
         self.axes.axis([0, len(self.num_date_list[start_date_index:])-1, None, None])
         self.axes.xaxis.set_major_locator(FixedLocator(index_list))
@@ -115,20 +117,23 @@ class TechnicalAnalysisCanvas(MplCanvas):
         x_unit = range(0, len(self.num_date_list[start_date_index:]))
 
         if canvas_price_out:
-            self.canvas_x_list = self.po_macd_list[start_date_index:]
+            self.canvas_y_list = self.po_macd_list[start_date_index:]
             self.axes.plot(x_unit, self.po_diff_list[start_date_index:], 'r', label='dif')
             self.axes.plot(x_unit, self.po_dem_list[start_date_index:], 'b', label='ema')
-            positive_macd, negative_macd = GpAnalyzer.separate_macd_list(self.canvas_x_list)
+            positive_macd, negative_macd = GpAnalyzer.separate_macd_list(self.canvas_y_list)
             self.axes.bar(x_unit, positive_macd, color='r', linewidth=0)
             self.axes.bar(x_unit, negative_macd, color='g', linewidth=0)
         else:
-            self.canvas_x_list = self.pi_macd_list[start_date_index:]
+            self.canvas_y_list = self.pi_macd_list[start_date_index:]
             self.axes.plot(x_unit, self.pi_diff_list[start_date_index:], 'r', label='dif')
             self.axes.plot(x_unit, self.pi_dem_list[start_date_index:], 'b', label='ema')
-            positive_macd, negative_macd = GpAnalyzer.separate_macd_list(self.canvas_x_list)
+            positive_macd, negative_macd = GpAnalyzer.separate_macd_list(self.canvas_y_list)
             self.axes.bar(x_unit, positive_macd, color='r', linewidth=0)
             self.axes.bar(x_unit, negative_macd, color='g', linewidth=0)
+        self.axes.patch.set_facecolor('#FCF6F5')
 
+        self.canvas_x_list = self.num_date_list[start_date_index:]
+        self.canvas_x_str_list = GpAnalyzer.datetime_to_str(self.canvas_x_list)
         index_list = GpAnalyzer.get_first_date_index_in_month(self.num_date_list[start_date_index:])
         self.axes.axis([0, len(self.num_date_list[start_date_index:]) - 1, None, None])
         self.axes.xaxis.set_major_locator(FixedLocator(index_list))
