@@ -54,9 +54,7 @@ def calculate_ema(price_list, period):
 
 
 def calculate_dif(ema_list0, ema_list1):
-    dif_list = []
-    for ema0, ema1 in zip(ema_list0, ema_list1):
-        dif_list.append(ema0 - ema1)
+    dif_list = [ema0 - ema1 for ema0, ema1 in zip(ema_list0, ema_list1)]
     return dif_list
 
 
@@ -86,7 +84,5 @@ def separate_macd_list(macd_list):
 
 
 def datetime_to_str(date_list):
-    str_list = []
-    for date in date_list:
-        str_list.append(date.strftime('%Y/%m/%d'))
+    str_list = [date.strftime('%Y/%m/%d') for date in date_list]
     return str_list
