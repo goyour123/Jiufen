@@ -24,6 +24,7 @@ class MplCanvas(FigureCanvasQTAgg):
 
         self.date_list, self.num_date_list, self.price_in_list, self.price_out_list = [], [], [], []
         self.canvas_x_list, self.canvas_x_str_list, self.canvas_y_list = [], [], []
+        GpAnalyzer.update_sqlite()
         self.update_data()
 
     def update_data(self):
