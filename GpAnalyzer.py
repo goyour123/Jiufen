@@ -15,6 +15,9 @@ def update_sqlite():
 
     cur.execute('''CREATE TABLE IF NOT EXISTS Gold (Date TEXT UNIQUE, Price_Out INTEGER, Price_In INTEGER)''')
 
+    cur.execute('''SELECT Date FROM Gold''')
+    db_date = [db_date for db_date, in cur.fetchall()]
+
     url = "http://rate.bot.com.tw/Pages/UIP005/UIP005INQ3.aspx?view=1&lang=zh-TW"
 
     payload = {
@@ -32,10 +35,12 @@ def update_sqlite():
     soup = BeautifulSoup(res.text, 'html.parser')
     row = soup.findAll('tr', {'class': re.compile('color[01]')})
 
-    for item0 in row:
-        price = item0.findAll('td', {'class': 'decimal'})
+    for item in row:
+        if item.a.string in db_date:
+            break
+        price = item.findAll('td', {'class': 'decimal'})
         cur.execute('''INSERT OR IGNORE INTO Gold (Date, Price_Out, Price_In) VALUES (?, ?, ?)''',
-                    (item0.a.string,
+                    (item.a.string,
                      int(price[0].string),
                      int(price[1].string)))
 
