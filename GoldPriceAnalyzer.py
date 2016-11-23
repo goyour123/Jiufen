@@ -34,10 +34,10 @@ class MplCanvas(FigureCanvasQTAgg):
         cur.execute('SELECT * FROM Gold ORDER BY Date ASC')
         all_fetch = cur.fetchall()
 
-        for date, price_out, price_in in all_fetch:
+        for date, price_in, price_out in all_fetch:
             self.date_list.append(date)
-            self.price_out_list.append(price_out)
             self.price_in_list.append(price_in)
+            self.price_out_list.append(price_out)
 
         converted_dates = map(datetime.strptime, self.date_list, len(self.date_list) * ['%Y/%m/%d'])
         self.num_date_list = list(converted_dates)
@@ -81,13 +81,13 @@ class GoldPriceCanvas(MplCanvas):
 
         if canvas_price_out:
             self.canvas_y_list = self.price_out_list[start_date_index:]
-            self.axes.set_title('Selling Price')
+            self.axes.set_title('Bank Selling Price')
             self.axes.plot(x_unit, self.canvas_y_list, 'r', color='#B99A1D')
             self.axes.patch.set_facecolor('#E3F0FD')
             self.fig.set_facecolor('#CBD7E6')
         else:
             self.canvas_y_list = self.price_in_list[start_date_index:]
-            self.axes.set_title('Buying Price')
+            self.axes.set_title('Bank Buying Price')
             self.axes.plot(x_unit, self.canvas_y_list, 'r', color='#FF53D5')
             self.axes.patch.set_facecolor('#FFECFF')
             self.fig.set_facecolor('#FFC8FF')
