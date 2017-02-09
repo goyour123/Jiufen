@@ -1,11 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 import sqlite3
-from datetime import datetime
-import re
 
 
-conn = sqlite3.connect('goldprice.sqlite')
+conn = sqlite3.connect('mine.sqlite')
 cur = conn.cursor()
 
 cur.execute('''CREATE TABLE IF NOT EXISTS Gold (Date TEXT UNIQUE, Price_Out INTEGER, Price_In INTEGER)''')

@@ -28,7 +28,7 @@ class MplCanvas(FigureCanvasQTAgg):
         self.update_data()
 
     def update_data(self):
-        conn = sqlite3.connect('goldprice.sqlite')
+        conn = sqlite3.connect('mine.sqlite')
         cur = conn.cursor()
 
         cur.execute('SELECT * FROM Gold ORDER BY Date ASC')
