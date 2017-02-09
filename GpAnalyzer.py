@@ -25,7 +25,7 @@ def update_sqlite():
         date = tr.find('a').string
         if date in db_date:
             break
-        price = item.findAll('td', {'class': 'text-right'})
+        price = tr.findAll('td', {'class': 'text-right'})
         cur.execute('''INSERT OR IGNORE INTO Gold (Date, Price_In, Price_Out) VALUES (?, ?, ?)''',
                     (date,
                      int(price[0].string),
