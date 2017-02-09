@@ -7,7 +7,7 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from matplotlib.dates import IndexDateFormatter, date2num
 from matplotlib.ticker import FixedLocator
-import GpAnalyzer
+from pit import miner
 
 
 class MplCanvas(FigureCanvasQTAgg):
@@ -24,7 +24,7 @@ class MplCanvas(FigureCanvasQTAgg):
 
         self.date_list, self.num_date_list, self.price_in_list, self.price_out_list = [], [], [], []
         self.canvas_x_list, self.canvas_x_str_list, self.canvas_y_list = [], [], []
-        GpAnalyzer.update_sqlite()
+        miner.update_sqlite()
         self.update_data()
 
     def update_data(self):
@@ -93,8 +93,8 @@ class GoldPriceCanvas(MplCanvas):
             self.fig.set_facecolor('#FFC8FF')
 
         self.canvas_x_list = self.num_date_list[start_date_index:]
-        self.canvas_x_str_list = GpAnalyzer.datetime_to_str(self.canvas_x_list)
-        index_list = GpAnalyzer.get_first_date_index_in_month(self.num_date_list[start_date_index:])
+        self.canvas_x_str_list = miner.datetime_to_str(self.canvas_x_list)
+        index_list = miner.get_first_date_index_in_month(self.num_date_list[start_date_index:])
         self.axes.axis([0, len(self.num_date_list[start_date_index:])-1, None, None])
         self.axes.xaxis.set_major_locator(FixedLocator(index_list))
         self.axes.xaxis.set_major_formatter(IndexDateFormatter(date2num(self.num_date_list[start_date_index:]), '%b'))
@@ -121,21 +121,21 @@ class TechnicalAnalysisCanvas(MplCanvas):
             self.canvas_y_list = self.po_macd_list[start_date_index:]
             self.axes.plot(x_unit, self.po_diff_list[start_date_index:], 'r', label='dif')
             self.axes.plot(x_unit, self.po_dem_list[start_date_index:], 'b', label='ema')
-            positive_macd, negative_macd = GpAnalyzer.separate_macd_list(self.canvas_y_list)
+            positive_macd, negative_macd = miner.separate_macd_list(self.canvas_y_list)
             self.axes.bar(x_unit, positive_macd, color='r', linewidth=0)
             self.axes.bar(x_unit, negative_macd, color='g', linewidth=0)
         else:
             self.canvas_y_list = self.pi_macd_list[start_date_index:]
             self.axes.plot(x_unit, self.pi_diff_list[start_date_index:], 'r', label='dif')
             self.axes.plot(x_unit, self.pi_dem_list[start_date_index:], 'b', label='ema')
-            positive_macd, negative_macd = GpAnalyzer.separate_macd_list(self.canvas_y_list)
+            positive_macd, negative_macd = miner.separate_macd_list(self.canvas_y_list)
             self.axes.bar(x_unit, positive_macd, color='r', linewidth=0)
             self.axes.bar(x_unit, negative_macd, color='g', linewidth=0)
         self.axes.patch.set_facecolor('#FCF6F5')
 
         self.canvas_x_list = self.num_date_list[start_date_index:]
-        self.canvas_x_str_list = GpAnalyzer.datetime_to_str(self.canvas_x_list)
-        index_list = GpAnalyzer.get_first_date_index_in_month(self.num_date_list[start_date_index:])
+        self.canvas_x_str_list = miner.datetime_to_str(self.canvas_x_list)
+        index_list = miner.get_first_date_index_in_month(self.num_date_list[start_date_index:])
         self.axes.axis([0, len(self.num_date_list[start_date_index:]) - 1, None, None])
         self.axes.xaxis.set_major_locator(FixedLocator(index_list))
         self.axes.xaxis.set_major_formatter(IndexDateFormatter(date2num(self.num_date_list[start_date_index:]), '%m'))
@@ -143,18 +143,18 @@ class TechnicalAnalysisCanvas(MplCanvas):
         self.draw()
 
     def technical_analysis_init(self):
-        po_ema12_list = GpAnalyzer.calculate_ema(self.price_out_list, 12)
-        po_ema26_list = GpAnalyzer.calculate_ema(self.price_out_list, 26)
-        self.po_diff_list = GpAnalyzer.calculate_dif(po_ema12_list, po_ema26_list)
-        self.po_dem_list = GpAnalyzer.calculate_ema(self.po_diff_list, 9)
+        po_ema12_list = miner.calculate_ema(self.price_out_list, 12)
+        po_ema26_list = miner.calculate_ema(self.price_out_list, 26)
+        self.po_diff_list = miner.calculate_dif(po_ema12_list, po_ema26_list)
+        self.po_dem_list = miner.calculate_ema(self.po_diff_list, 9)
 
-        pi_ema12_list = GpAnalyzer.calculate_ema(self.price_in_list, 12)
-        pi_ema26_list = GpAnalyzer.calculate_ema(self.price_in_list, 26)
-        self.pi_diff_list = GpAnalyzer.calculate_dif(pi_ema12_list, pi_ema26_list)
-        self.pi_dem_list = GpAnalyzer.calculate_ema(self.pi_diff_list, 9)
+        pi_ema12_list = miner.calculate_ema(self.price_in_list, 12)
+        pi_ema26_list = miner.calculate_ema(self.price_in_list, 26)
+        self.pi_diff_list = miner.calculate_dif(pi_ema12_list, pi_ema26_list)
+        self.pi_dem_list = miner.calculate_ema(self.pi_diff_list, 9)
 
-        self.po_macd_list = GpAnalyzer.calculate_dif(self.po_diff_list, self.po_dem_list)
-        self.pi_macd_list = GpAnalyzer.calculate_dif(self.pi_diff_list, self.pi_dem_list)
+        self.po_macd_list = miner.calculate_dif(self.po_diff_list, self.po_dem_list)
+        self.pi_macd_list = miner.calculate_dif(self.pi_diff_list, self.pi_dem_list)
 
 
 class AppWindow(QtGui.QMainWindow):
