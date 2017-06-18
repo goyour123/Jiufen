@@ -2,20 +2,20 @@ running build
 running build_exe
 creating directory build\exe.win-amd64-3.5
 copying C:\Anaconda3\lib\site-packages\cx_Freeze\bases\Win32GUI.exe -> build\exe.win-amd64-3.5\Jiufen.exe
-copying C:\Anaconda3\api-ms-win-crt-runtime-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-runtime-l1-1-0.dll
-copying C:\Anaconda3\python35.dll -> build\exe.win-amd64-3.5\python35.dll
-copying C:\Anaconda3\api-ms-win-crt-process-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-process-l1-1-0.dll
-copying C:\Anaconda3\api-ms-win-crt-time-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-time-l1-1-0.dll
 copying C:\Anaconda3\api-ms-win-crt-math-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-math-l1-1-0.dll
-copying C:\Anaconda3\api-ms-win-crt-convert-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-convert-l1-1-0.dll
-copying C:\Anaconda3\api-ms-win-crt-conio-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-conio-l1-1-0.dll
-copying C:\Anaconda3\api-ms-win-crt-string-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-string-l1-1-0.dll
-copying C:\Anaconda3\api-ms-win-crt-filesystem-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-filesystem-l1-1-0.dll
 copying C:\Anaconda3\api-ms-win-crt-stdio-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-stdio-l1-1-0.dll
-copying C:\Anaconda3\api-ms-win-crt-heap-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-heap-l1-1-0.dll
-copying C:\Anaconda3\VCRUNTIME140.dll -> build\exe.win-amd64-3.5\VCRUNTIME140.dll
-copying C:\Anaconda3\api-ms-win-crt-environment-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-environment-l1-1-0.dll
 copying C:\Anaconda3\api-ms-win-crt-locale-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-locale-l1-1-0.dll
+copying C:\Anaconda3\python35.dll -> build\exe.win-amd64-3.5\python35.dll
+copying C:\Anaconda3\api-ms-win-crt-string-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-string-l1-1-0.dll
+copying C:\Anaconda3\api-ms-win-crt-runtime-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-runtime-l1-1-0.dll
+copying C:\Anaconda3\api-ms-win-crt-heap-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-heap-l1-1-0.dll
+copying C:\Anaconda3\api-ms-win-crt-environment-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-environment-l1-1-0.dll
+copying C:\Anaconda3\api-ms-win-crt-process-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-process-l1-1-0.dll
+copying C:\Anaconda3\VCRUNTIME140.dll -> build\exe.win-amd64-3.5\VCRUNTIME140.dll
+copying C:\Anaconda3\api-ms-win-crt-time-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-time-l1-1-0.dll
+copying C:\Anaconda3\api-ms-win-crt-convert-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-convert-l1-1-0.dll
+copying C:\Anaconda3\api-ms-win-crt-filesystem-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-filesystem-l1-1-0.dll
+copying C:\Anaconda3\api-ms-win-crt-conio-l1-1-0.dll -> build\exe.win-amd64-3.5\api-ms-win-crt-conio-l1-1-0.dll
 Stamped: build\exe.win-amd64-3.5\Jiufen.exe
 writing zip file build\exe.win-amd64-3.5\python35.zip
 
@@ -1854,8 +1854,8 @@ Copying data from package concurrent...
 Copying data from package cryptography...
 copying C:\Anaconda3\lib\site-packages\cryptography\hazmat\bindings\_constant_time.pyd -> build\exe.win-amd64-3.5\cryptography\hazmat\bindings\_constant_time.pyd
 copying C:\Anaconda3\lib\site-packages\cryptography\hazmat\bindings\_openssl.pyd -> build\exe.win-amd64-3.5\cryptography\hazmat\bindings\_openssl.pyd
-copying C:\Anaconda3\Library\bin\SSLEAY32.dll -> build\exe.win-amd64-3.5\SSLEAY32.dll
 copying C:\Anaconda3\Library\bin\LIBEAY32.dll -> build\exe.win-amd64-3.5\LIBEAY32.dll
+copying C:\Anaconda3\Library\bin\SSLEAY32.dll -> build\exe.win-amd64-3.5\SSLEAY32.dll
 Copying data from package ctypes...
 Copying data from package curses...
 Copying data from package dateutil...
