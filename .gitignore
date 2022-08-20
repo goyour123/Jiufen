@@ -1,4 +1,10 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Editor specific
 .vscode
 .idea/
+
+# User-specific files
 jiufen-venv/
 build/
