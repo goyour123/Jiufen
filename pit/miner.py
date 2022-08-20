@@ -14,7 +14,7 @@ def update_sqlite():
     cur.execute('''SELECT Date FROM Gold''')
     db_date = [db_date for db_date, in cur.fetchall()]
 
-    url = "http://rate.bot.com.tw/gold/chart/year/TWD"
+    url = "https://rate.bot.com.tw/gold/chart/year/TWD"
 
     res = requests.get(url)
     soup = BeautifulSoup(res.text, 'html.parser')
