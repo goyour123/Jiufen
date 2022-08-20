@@ -12,7 +12,7 @@ if sys.platform == 'win32':
 
 options = {
     'build_exe': {
-        'excludes': ['gtk', 'PyQt5', 'Tkinter'],
+        'excludes': ['gtk', 'Tkinter'],
         'includes': ['numpy.core._methods', 'numpy.lib.format', 'idna.idnadata']
     }
 }
@@ -22,7 +22,7 @@ executables = [
 ]
 
 setup(name='Jiufen',
-      version='1.0',
+      version='2.0',
       description='Gold price analyzer',
       executables=executables,
       options=options

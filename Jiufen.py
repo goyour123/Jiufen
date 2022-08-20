@@ -1,12 +1,15 @@
 import sys
 import sqlite3
 from datetime import datetime
+import PyQt5
 from dateutil.relativedelta import relativedelta
-from PyQt4 import QtGui
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import QMainWindow, QApplication
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
-from matplotlib.dates import IndexDateFormatter, date2num
+from matplotlib.dates import date2num, IndexDateFormatter
 from matplotlib.ticker import FixedLocator
+from statistics import median
 from pit import miner
 
 
@@ -15,11 +18,12 @@ class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, parent=None, width=7, height=4, dpi=110):
         self.fig = Figure(figsize=(width, height), dpi=dpi, linewidth=1)
         self.axes = self.fig.add_subplot(111)
+        self.axes.autoscale_view()
 
         FigureCanvasQTAgg.__init__(self, self.fig)
         self.setParent(parent)
 
-        FigureCanvasQTAgg.setSizePolicy(self, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        FigureCanvasQTAgg.setSizePolicy(self, PyQt5.QtWidgets.QSizePolicy.Expanding, PyQt5.QtWidgets.QSizePolicy.Expanding)
         FigureCanvasQTAgg.updateGeometry(self)
 
         self.date_list, self.num_date_list, self.price_in_list, self.price_out_list = [], [], [], []
@@ -47,7 +51,7 @@ class MplCanvas(FigureCanvasQTAgg):
         while True:
             if start_date in self.num_date_list:
                 return self.num_date_list.index(start_date)
-            start_date -= relativedelta(days=1)
+            start_date += relativedelta(days=1)
 
     def display_position(self, event):
         if event.inaxes:
@@ -60,8 +64,8 @@ class MplCanvas(FigureCanvasQTAgg):
             y_data = self.canvas_y_list[x_data]
             x_min, x_max = self.axes.get_xlim()
             y_min, y_max = self.axes.get_ylim()
-            self.axes.plot([x_min, x_max], [y_data, y_data], 'k', linewidth=0.5)
-            self.axes.plot([x_data, x_data], [y_min, y_max], 'k', linewidth=0.5)
+            self.axes.plot([x_min, x_data], [y_data, y_data], 'k', linewidth=0.5)
+            self.axes.plot([x_data, x_data], [y_data, y_min], 'k', linewidth=0.5)
             text = str(self.canvas_x_str_list[x_data]) + '\n' + str(round(y_data, 2))
             self.axes.text(event.xdata, y_data, text, bbox={'facecolor': '#d2cbcb', 'alpha': 0.5})
             self.draw()
@@ -91,7 +95,8 @@ class GoldPriceCanvas(MplCanvas):
             self.axes.plot(x_unit, self.canvas_y_list, 'r', color='#FF53D5')
             self.axes.patch.set_facecolor('#FFECFF')
             self.fig.set_facecolor('#FFC8FF')
-
+        y_margin = int(median(self.canvas_y_list) * 0.01)
+        self.axes.set_ylim(min(self.canvas_y_list) - y_margin, max(self.canvas_y_list) + y_margin)
         self.canvas_x_list = self.num_date_list[start_date_index:]
         self.canvas_x_str_list = miner.datetime_to_str(self.canvas_x_list)
         index_list = miner.get_first_date_index_in_month(self.num_date_list[start_date_index:])
@@ -133,6 +138,8 @@ class TechnicalAnalysisCanvas(MplCanvas):
             self.axes.bar(x_unit, negative_macd, color='g', linewidth=0)
         self.axes.patch.set_facecolor('#FCF6F5')
 
+        y_margin = 5
+        self.axes.set_ylim(min(self.po_diff_list[start_date_index:]) - y_margin, max(self.po_diff_list[start_date_index:]) + y_margin)
         self.canvas_x_list = self.num_date_list[start_date_index:]
         self.canvas_x_str_list = miner.datetime_to_str(self.canvas_x_list)
         index_list = miner.get_first_date_index_in_month(self.num_date_list[start_date_index:])
@@ -157,16 +164,15 @@ class TechnicalAnalysisCanvas(MplCanvas):
         self.pi_macd_list = miner.calculate_dif(self.pi_diff_list, self.pi_dem_list)
 
 
-class AppWindow(QtGui.QMainWindow):
+class AppWindow(QMainWindow):
     def __init__(self):
-        QtGui.QMainWindow.__init__(self)
+        QMainWindow.__init__(self)
         self.init_ui()
-
-        self.main_widget = QtGui.QWidget(self)
+        self.main_widget = PyQt5.QtWidgets.QWidget(self)
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
 
-        self.layout = QtGui.QVBoxLayout(self.main_widget)
+        self.layout = PyQt5.QtWidgets.QVBoxLayout(self.main_widget)
         self.price_canvas = 1
         self.canvas_interval = 12
         self.gold_price_canvas = GoldPriceCanvas(self.main_widget)
@@ -174,23 +180,23 @@ class AppWindow(QtGui.QMainWindow):
         self.layout.addWidget(self.gold_price_canvas)
         self.layout.addWidget(self.technical_analyze_canvas)
 
-        priceInAction = QtGui.QAction('&銀行買入', self)
+        priceInAction = PyQt5.QtWidgets.QAction('&銀行買入', self)
         priceInAction.setStatusTip("更改顯示的價格為銀行買入價格")
         priceInAction.triggered.connect(self.change_canvas_price_in)
 
-        priceOutAction = QtGui.QAction('&銀行賣出', self)
+        priceOutAction = PyQt5.QtWidgets.QAction('&銀行賣出', self)
         priceOutAction.setStatusTip("更改顯示的價格為銀行賣出價格")
         priceOutAction.triggered.connect(self.change_canvas_price_out)
 
-        intervalAction3 = QtGui.QAction('&最近3個月', self)
+        intervalAction3 = PyQt5.QtWidgets.QAction('&最近3個月', self)
         intervalAction3.setStatusTip("更改顯示期間為最近的3個月")
         intervalAction3.triggered.connect(self.update_figure_interval3)
 
-        intervalAction6 = QtGui.QAction('&最近6個月', self)
+        intervalAction6 = PyQt5.QtWidgets.QAction('&最近6個月', self)
         intervalAction6.setStatusTip("更改顯示期間為最近的6個月")
         intervalAction6.triggered.connect(self.update_figure_interval6)
 
-        intervalAction12 = QtGui.QAction('&最近1年', self)
+        intervalAction12 = PyQt5.QtWidgets.QAction('&最近1年', self)
         intervalAction12.setStatusTip("更改顯示期間為最近的1年")
         intervalAction12.triggered.connect(self.update_figure_interval12)
 
@@ -240,7 +246,7 @@ class AppWindow(QtGui.QMainWindow):
 
 
 def main():
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     app_window = AppWindow()
     app_window.show()
     sys.exit(app.exec_())
